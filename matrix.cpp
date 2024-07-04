@@ -1,70 +1,60 @@
-/*Ejercicio Matriz */
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#include <time.h>
 
-
-// Estructura para pasar parametros a los hilos
+// Parametros de la matriz
 struct parametros {
-  int id; // Id del hilo
-  float escalar; // Escalar por el que se multiplicara la matriz 
-  float matriz[3][3]; // Matriz
+    int id; // ID del proceso
+    float escalar; // Numero por el que se multiplica la maytriz
+    float matriz[3][3]; // Matriz a multiplicar
 };
 
-// Funcion para inicializar la matriz
-void init(float m[3][3]) {
-  int i; // Contador filas
-  int j; // Contador conlumnas
-  for (i = 0; i < 3; i++) { // Recorremos todos los elementos de la matriz
-    for (j = 0; j < 3; j++) {
-      m[i][j] = random() * 100; // Asignamos un valor aleatorio a cada elelemnto
+void init(float m[3][3]) { // Inicializa la matriz
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            m[i][j] = (float)rand() / RAND_MAX * 100; // Aque se genera un numero aleatorio entre 0 y 100 para la mtriz
+        }
     }
-  }
 }
 
-// Funcion que multiplica la matriz por un escalar
+// Multiplicar la matriz por el escalar
 void *matrizporescalar(void *arg) {
-  struct parametros *p; // Estructura con los parametros de la matriz
-  int i; // Contador filas
-  int j; // COntador columnas
-
-  p = (struct parametros *)arg; // Cast de los parametros
-  for (i = 0; i < 3; i++) { // Recorremos todas los elementos
-    printf(" Hilo %d multiplicando fila %d\n", p->id, i);
-    for (j = 0; j < 3; j++) {
-      p->matriz[i][j] = p->matriz[i][j] * p->escalar; // Multiplicamos cada elemento por el escalar
-      // sleep(2);
+    struct parametros *p = (struct parametros *)arg;
+    for (int i = 0; i < 3; i++) { // Recorrer filas
+        printf("Hilo %d multiplicando fila %d\n", p->id, i);
+        for (int j = 0; j < 3; j++) { // Loop columnas
+            p->matriz[i][j] *= p->escalar; // Multiplicar cada elemento por escalar
+        }
     }
-  }
+    return NULL;
 }
 
-// Funcion de ejecuion
-int main(int argc, char *argv[]) {
-  pthread_t h1;
-  struct parametros p1;
-  p1.id = 1;
-  p1.escalar = 0.5;
-
-  init(p1.matriz);
-  pthread_create(&h1, NULL, matrizporescalar, (void *)&p1);
-
-  // Wait for the thread to finish
-  pthread_join(h1, NULL);
-
-  return 0;
+// Imprimir matriz, doble for loop
+void print_matrix(float m[3][3]) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            printf("%.2f ", m[i][j]);
+        }
+        printf("\n");
+    }
 }
 
+int main() {
+    srand(time(NULL)); // Se inicializa la seed para los numeros aleatorios
+    pthread_t h1; // Se crea el hilo
+    struct parametros p1 = {1, 0.5}; // Se crea la estructura de parametros de matriz
 
+    init(p1.matriz); // Inicializa la matriz con valores
+    
+    printf("Matriz original:\n");
+    print_matrix(p1.matriz);
 
+    pthread_create(&h1, NULL, matrizporescalar, &p1); // Se realiza la multiplicacaion
+    pthread_join(h1, NULL);
 
+    printf("\n Matriz resultante:\n");
+    print_matrix(p1.matriz);
 
-
-
-
-
-
-
-
-
+    return 0;
+}
