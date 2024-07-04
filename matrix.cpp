@@ -53,7 +53,7 @@ int main() {
     pthread_create(&h1, NULL, matrizporescalar, &p1); // Se realiza la multiplicacaion
     pthread_join(h1, NULL);
 
-    printf("\n Matriz resultante:\n");
+    printf("\n Matriz resultante:\n"); // Imprimir matriz ersultante
     print_matrix(p1.matriz);
 
     return 0;
